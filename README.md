@@ -52,7 +52,7 @@ $ vagrant ssh k8master
 ```
 The kubectl command is aliased to k. So you may use either k or kubectl to run your kubectl commands.
 
-Run a get nodes command to ensure that all the three nodes, k8master, k1 and k2 are in a running state.
+Run a get nodes command to ensure that all the three nodes, k8master, k1 and k2 are in a running state. The cluster nodes may take some time to come into a ready state. On occassions it my take as long as 10 minutes so give it some time before a conclusion.
 
 ```sh
 
@@ -60,7 +60,9 @@ $ k get nodes -o wide
 
 ```
 
-Make a quick check if all the pods in namespace kube-system are in a proper running state
+Make a quick check if all the pods in namespace kube-system are in a proper running state. All the pods in this namespaces must be in a proper running state. If not, then run a vagrant destroy command and try to bring them up again. If things do not go as planned try switching to a different CNI such as weavenet and giving it a try again. 
+
+Note: You may need to delete calico cni configurations in /etc/cni/net.d and plugins /opt/cni/bin
 
 ```sh
 
