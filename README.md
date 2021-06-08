@@ -107,6 +107,15 @@ $ vagrant ssh k8master
 
 ```
 
+## Vagrantfile
+
+The vagrantfile is a simple and a standard straight forward file for building a VM using Virtualbox as its vm platform and ubuntu as its os image.
+It runs separate scripts for docker, kubernetes, firewall and swap. All the scripts collections of standards commands and procedures for installing
+configuring of vm as per requirements of docker and kubernetes. It makes use of calico as its CNI plugin for implementing of pod networks.
+
+These defaults can be changed either the vagrant file or withing the accompanying setup scripts.
+
+### CNI: Calico
 
 It uses calico to implement the CNI for pod networking.
 
