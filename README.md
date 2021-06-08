@@ -4,9 +4,9 @@ A k8s local cluster for laptops and desktops for Ubuntu image.
 
 By default the cluster boots up with following three nodes. 
 
-master node: k8master
-worker node: k1
-worker node: k2
+- master node: k8master
+- worker node: k1
+- worker node: k2
 
 
 ## A Quick install and check
@@ -76,11 +76,33 @@ Note: You may need to delete calico cni configurations in /etc/cni/net.d and plu
 $ k get -n kube-system get pods
 
 ```
-Run an image say redis to ensure that the nodes are able to handle the pods.
+#### To login to k1 worker node
 
 ```sh
 
-$ k run red --image redis
+$ vagrant ssh k1
+
+```
+
+#### To login to k2 worker node
+
+```sh
+
+$ vagrant ssh k2
+
+```
+
+#### To test pods and services
+
+Run and nginx pod and a node port service on 30010
+
+curl the pod on the pod ip address, nodeport ip address and node ip and nodeport number
+
+Run nginx image to ensure that the nodes are able to handle the pods.
+
+```sh
+
+$ k run nginx --image nginx --port 80
 
 ```
 
@@ -89,37 +111,59 @@ Run kubectl command to check if the pod is running
 
 ```sh
 
-$ k get po red -o wide
+$ k get po nginx -o wide
 
 ```
-Run describe command on red pod to check the details of the pod.
+Note the ip address of the pod
+
+```sh
+NAME   READY   STATUS    RESTARTS   AGE   IP             NODE   NOMINATED NODE   READINESS GATES
+nginx  1/1     Running   0          20m   192.168.99.1   k2     <none>           <none>
+```
+
+Run describe command on nginx pod to check the details of the pod.
 
 ```sh
 
-$ k describe po red
+$ k describe po nginx
 
 ```
+curl to the ip address and port
 
-#### To login to k1 worker node
+```sh
+curl http://192.168.99.1:80
+```
+
+Create a nodeport service
 
 ```sh
 
-$ vagrant ssh k8master
+k create svc nodeport nginx --tcp=80:80 --node-port=30010 --dry-run=client -o yaml | \
+k set selector "run=nginx" --local -f - -o yaml | k create -f -
 
 ```
 
-#### To login to k2 worker node
+check the node port service ip address
 
 ```sh
-
-$ vagrant ssh k8master
+curl http://<svc_ip>:80
 
 ```
+
+Check for the nginx pod running on node ip and node port 30010  
+
+```sh
+curl http://<node_ip>:30010
+
+```
+
+Alternatively you may also point your browser to this ip address. 
+
 
 ## Vagrantfile
 
 The vagrantfile is a simple and a standard straight forward file for building a VM using Virtualbox as its vm platform and ubuntu as its os image.
-It runs separate scripts for docker, kubernetes, firewall and swap. All the scripts collections of standards commands and procedures for installing
+It runs separate scripts for docker, kubernetes and swap. All the scripts collections of standards commands and procedures for installing
 configuring of vm as per requirements of docker and kubernetes. It makes use of calico as its CNI plugin for implementing of pod networks.
 
 These defaults can be changed either the vagrant file or withing the accompanying setup scripts.
