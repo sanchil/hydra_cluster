@@ -1,0 +1,112 @@
+
+# the following needs to be executed on the controlplane kubemaster only
+
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# or
+
+#export KUBECONFIG=/etc/kubernetes/admin.conf
+
+# Installing a Pod network add-on. Here we use calico
+
+
+kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
+kubectl create -f https://docs.projectcalico.org/manifests/custom-resources.yaml
+# kubectl taint nodes --all node-role.kubernetes.io/master-
+
+##watch kubectl get pods -n calico-system
+#kubectl taint nodes --all node-role.kubernetes.io/master-
+#kubectl get nodes -o wide
+
+
+
+
+# to be executed on the nodes only
+
+ sudo kubeadm join 192.168.58.100:6443 --token c3uv1h.qi6ibj04vnmzquiu --discovery-token-ca-cert-hash sha256:c7f3e212e782efaac1b1f98e262c233790baaba11fb33fb7223568555a079226 
+ 
+ c7f3e212e782efaac1b1f98e262c233790baaba11fb33fb7223568555a079226
+    
+# executed on all nodes
+
+sudo apt-get install bash-completion vim -y
+echo 'alias k=kubectl' >> $HOME/.bashrc
+echo "source <(kubectl completion bash)" >> $HOME/.bashrc
+source .bashrc
+
+or
+
+cat - >> $HOME/.bashrc << EOF
+alias k = kubectl
+source < (kubectl completion bash)
+EOF
+source .bashrc
+
+vim .vimrc
+
+set number
+set shiftwidth=2
+set expandtab
+set cursorline
+
+source .vimrc
+
+
+##############################################################################################################
+ https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/install-kubeadm/#check-required-ports
+
+Protocol	Direction	Port Range	Purpose	Used By
+TCP	Inbound	6443*	Kubernetes API server	All
+TCP	Inbound	2379-2380	etcd server client API	kube-apiserver, etcd
+TCP	Inbound	10250	kubelet API	Self, Control plane
+TCP	Inbound	10251	kube-scheduler	Self
+TCP	Inbound	10252	kube-controller-manager	Self
+
+Worker node(s)
+Protocol	Direction	Port Range	Purpose	Used By
+TCP	Inbound	10250	kubelet API	Self, Control plane
+TCP	Inbound	30000-32767	NodePort Services†	All
+
+##############################################################################################################
+# docker
+
+$ sudo ufw allow ssh
+$ sudo ufw allow proto tcp from any to any port 80,443,2377,7946
+$ sudo ufw allow proto udp from any to any port 80,443,7946,4789        
+$ sudo echo "y" | ufw enable
+
+# k8s nodes
+$ sudo ufw allow ssh
+$ sudo allow proto tcp from any to any port 80,443,6443,2379:2380,10250:10252,30000:32767
+$ sudo echo "y" | ufw enable
+
+
+###############################################################################################################
+# https://stackoverflow.com/questions/51126164/how-do-i-find-the-join-command-for-kubeadm-on-the-master
+
+kubeadm token create --print-join-command
+
+or
+
+
+step-1: openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt \
+    | openssl rsa -pubin -outform der 2>/dev/null \
+    | openssl dgst -sha256 -hex \
+    | sed 's/^.* //'
+
+step-2: kubeadm token list  | awk '{print $1}' | tail -n1
+
+kubeadm join <ip-address>:6443\
+    --token=<token-from-step-2> \
+    --discovery-token-ca-cert-hash sha256:<ca-hash-from-step-1>
+    
+    
+    
+If you are joining control plane nodes, you will need a certificate key in the command too:
+
+kubeadm token create \
+--print-join-command \
+--certificate-key \
+$(kubeadm alpha certs certificate-key)

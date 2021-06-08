@@ -1,0 +1,194 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+NETWORK ="192.168.58."
+STARTIP=100
+MASTER_IP ="192.168.58."+"#{STARTIP}"
+
+NUMBER_NODES = 2 
+
+# All Vagrant configuration is done below. The "2" in Vagrant.configure
+# configures the configuration version (we support older styles for
+# backwards compatibility). Please don't change it unless you know what
+# you're doing.
+Vagrant.configure("2") do |config|
+  # The most common configuration options are documented and commented below.
+  # For a complete reference, please see the online documentation at
+  # https://docs.vagrantup.com.
+
+  # Every Vagrant development environment requires a box. You can search for
+  # boxes at https://vagrantcloud.com/search.
+
+  config.vm.box = "ubuntu/bionic64"
+   
+  config.vm.define "k8master" do |km|
+	   km.vm.provision "shell",inline: "echo creating vm k8master on #{MASTER_IP}"
+       km.vm.provision "shell",inline: "echo Home dir #{ENV['HOME']}"
+	   km.vm.hostname = "k8master"
+	   km.vm.provider "virtualbox" do |vb|
+           vb.name = "k8master"
+		   vb.gui = false
+		   vb.memory = 2048
+		   vb.cpus = 2
+	   end
+        km.vm.network :private_network, ip: MASTER_IP, hostname: true
+       #km.vm.network :public_network, ip: "192.168.58.115", bridge: "eth0", hostname: true
+       #km.vm.network :forwarded_port, guest: 22, host: 2225       
+	      km.vm.provision "setup_docker",:type=>"shell", :path=>"./setup_docker.sh"
+	      km.vm.provision "setup_k8s_nodes",type:"shell", path:"./setup_k8s_nodes.sh"
+        #km.vm.provision "setup_gcloud",type:"shell", path:"./setup_gcloud.sh"
+        km.vm.provision "setup_swapoff",type:"shell", path:"./setup_k8s_swapoff.sh"
+        km.vm.provision "setup_fw",type:"shell", path:"./setup_k8s_fw.sh"
+
+
+
+        #km.vm.provision "shell", inline:<<-SHELL
+        #sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+        #sudo touch /etc/profile.d/k8.sh
+        #sudo echo "swapoff -a" >> /etc/profile.d/k8.sh       
+        #SHELL
+       
+       #km.vm.provision "setup_firewall",type:"shell", inline:<<-INLINE        
+       # #sudo echo "192.168.58.100  k8master" >> /etc/hosts
+       # sudo echo "192.168.58.101  k1.org k1.org" >> /etc/hosts
+       # sudo echo "192.168.58.102  k2.org k2.org" >> /etc/hosts  
+       # sudo ufw allow ssh
+       # sudo ufw allow proto tcp from any to any port 22,80,443,2377,7946,6443,2379:2380,10250:10252,30000:32767,3000:15000
+       # sudo ufw allow proto udp from any to any port 22,80,443,7946,4789
+       # sudo echo "y" | ufw enable
+       #INLINE
+       
+        km.vm.provision "setup_k8s_master",type:"shell", env: {"HOME" => "/home/vagrant","ID"=>"1000","GRP"=>"1000"}, path:"./setup_k8s_master.sh",:args => MASTER_IP
+      
+       
+       
+        km.vm.provision "configure_k8_master",type:"shell", env: {"HOME" => "/home/vagrant","ID"=>"1000","GRP"=>"1000"}, inline:<<-INLINE 
+                echo "export HOME=$HOME" >> /home/vagrant/.profile
+                echo "export ID=$ID" >> /home/vagrant/.profile
+                echo "export GRP=$GRP" >> /home/vagrant/.profile
+                #kubeadm token create --print-join-command  >> /vagrant/setup_k8s_nodes_join.sh
+                kubeadm token create --print-join-command  > /vagrant/nodes_join                                
+                mkdir -p $HOME/.kube
+                sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config                               
+                sudo chown $ID:$GRP $HOME/.kube/config                
+                echo "Configuring Calico network for nodes"
+                #kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
+                #kubectl create -f https://docs.projectcalico.org/manifests/custom-resources.yaml
+                #curl https://docs.projectcalico.org/manifests/calico-etcd.yaml -o calico.yaml
+                curl https://docs.projectcalico.org/manifests/calico.yaml -O
+                kubectl apply -f calico.yaml
+                sudo apt-get install bash-completion vim -y
+                echo 'alias k=kubectl' >> $HOME/.bashrc
+                echo "source <(kubectl completion bash)" >> $HOME/.bashrc
+                source .bashrc              
+       INLINE
+
+   end
+
+  (1..NUMBER_NODES).each do |i|
+   config.vm.define "k#{i}" do |node|
+	   node.vm.provision "shell",inline: "echo creating vm #{i}"
+	   node.vm.hostname = "k#{i}"
+	   node.vm.provider "virtualbox" do |vb|
+           vb.name = "k#{i}"
+		   vb.gui = false
+		   vb.memory = 2048
+		   vb.cpus = 2
+	   end
+       node.vm.network :private_network, ip: NETWORK+"#{STARTIP+i}", hostname: true
+       # node.vm.network :public_network,  ip: "192.168.58.#{115+i}", bridge: "eth0",hostname: true
+       #node.vm.network :forwarded_port, guest: 22, host: "#{2225+i}"
+       
+	   #node.vm.network :public_network, bridge: "eth0"
+	     node.vm.provision "setup_docker",:type=>"shell", :path=>"./setup_docker.sh"
+       node.vm.provision "setup_k8s_nodes",type:"shell", :path=>"./setup_k8s_nodes.sh"
+       node.vm.provision "setup_swapoff",type:"shell", path:"./setup_k8s_swapoff.sh"
+       node.vm.provision "setup_fw",type:"shell", path:"./setup_k8s_fw.sh"
+       
+       #node.vm.provision "shell",inline:<<-SHELL
+       #sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+       #sudo touch /etc/profile.d/k8.sh
+       #sudo echo "swapoff -a" >> /etc/profile.d/k8.sh
+                  
+       #SHELL
+       
+       #node.vm.provision "shell",inline:<<-INLINE        
+       # #sudo echo "192.168.58.100 k8master.org k8master.org" >> /etc/hosts
+       # sudo echo "192.168.58.101  k1.org k1.org" >> /etc/hosts
+       # sudo echo "192.168.58.102  k2.org k2.org" >> /etc/hosts  
+       # sudo ufw allow ssh
+       # sudo ufw allow proto tcp from any to any port 22,80,443,2377,7946,6443,2379:2380,10250:10252,30000:32767,3000:15000
+       # sudo ufw allow proto udp from any to any port 22,80,443,7946,4789
+       # sudo echo "y" | ufw enable
+       #INLINE
+       
+       #node.vm.provision "setup_join_nodes",type:"shell", :path=>"./setup_k8s_nodes_join.sh"
+       
+       node.vm.provision "shell",env: {"HOME" => "/home/vagrant","ID"=>"1000","GRP"=>"1000"}, inline:<<-INLINE 
+                echo "export HOME=$HOME" >> /home/vagrant/.profile
+                echo "export ID=$ID" >> /home/vagrant/.profile
+                echo "export GRP=$GRP" >> /home/vagrant/.profile
+                /bin/sh -c "sudo $(cat /vagrant/nodes_join)"
+                sudo apt-get install bash-completion vim -y
+                echo 'alias k=kubectl' >> $HOME/.bashrc
+                echo "source <(kubectl completion bash)" >> $HOME/.bashrc
+                source .bashrc               
+       INLINE
+       
+   end
+  end
+
+  # Disable automatic box update checking. If you disable this, then
+  # boxes will only be checked for updates when the user runs
+  # `vagrant box outdated`. This is not recommended.
+   config.vm.box_check_update = false
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine. In the example below,
+  # accessing "localhost:8080" will access port 80 on the guest machine.
+  # NOTE: This will enable public access to the opened port
+  # config.vm.network "forwarded_port", guest: 80, host: 8080
+
+  # Create a forwarded port mapping which allows access to a specific port
+  # within the machine from a port on the host machine and only allow access
+  # via 127.0.0.1 to disable public access
+  # config.vm.network "forwarded_port", guest: 80, host: 8080, host_ip: "127.0.0.1"
+
+  # Create a private network, which allows host-only access to the machine
+  # using a specific IP.
+  # config.vm.network "private_network", ip: "192.168.33.10"
+
+  # Create a public network, which generally matched to bridged network.
+  # Bridged networks make the machine appear as another physical device on
+  # your network.
+  # config.vm.network "public_network"
+
+  # Share an additional folder to the guest VM. The first argument is
+  # the path on the host to the actual folder. The second argument is
+  # the path on the guest to mount the folder. And the optional third
+  # argument is a set of non-required options.
+  # config.vm.synced_folder "../data", "/vagrant_data"
+
+  # Provider-specific configuration so you can fine-tune various
+  # backing providers for Vagrant. These expose provider-specific options.
+  # Example for VirtualBox:
+  #
+  # config.vm.provider "virtualbox" do |vb|
+  #   # Display the VirtualBox GUI when booting the machine
+  #   vb.gui = true
+  #
+  #   # Customize the amount of memory on the VM:
+  #   vb.memory = "1024"
+  # end
+  #
+  # View the documentation for the provider you are using for more
+  # information on available options.
+
+  # Enable provisioning with a shell script. Additional provisioners such as
+  # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
+  # documentation for more information about their specific syntax and use.
+  # config.vm.provision "shell", inline: <<-SHELL
+  #   apt-get update
+  #   apt-get install -y apache2
+  # SHELL
+end
