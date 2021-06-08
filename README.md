@@ -2,12 +2,19 @@
 
 A k8s local cluster for laptops and desktops for Ubuntu image.
 
+By default the cluster boots up with following three nodes. 
+
+master node: k8master
+worker node: k1
+worker node: k2
+
 
 ## A Quick install and check
 
 Follow these commands for a quick download, install and run the cluster.
 
 ```sh
+
 $ git clone https://github.com/sanchil/hydra_cluster.git
 $ cd hydra_cluster
 $ git checkout ubuntu
