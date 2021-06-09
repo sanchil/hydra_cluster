@@ -20,57 +20,63 @@ Vagrant.configure("2") do |config|
   # boxes at https://vagrantcloud.com/search.
 
   config.vm.box = "centos/8"
-   
+
+ 
+  
+    config.vm.provision "install guest additions ", :type=>"shell" ,inline:<<-INLINE
+        curl https://download.virtualbox.org/virtualbox/6.0.0/VBoxGuestAdditions_6.0.0.iso -O
+
+        sudo mkdir -p /mnt/cdrom
+        sudo mount -o loop VBoxGuestAdditions_6.0.0.iso /mnt/cdrom
+        sudo dnf install -y epel-release
+        sudo dnf install -y gcc make perl patch libgomp glibc-headers glibc-devel kernel-devel kernel-headers bzip2 iproute-tc
+        sudo /mnt/cdrom/./VBoxLinuxAdditions.run --nox11
+        #sudo rcvboxadd quicksetup all
+        sudo usermod -aG vboxsf $USER  
+    INLINE
+
+  
+
   config.vm.define "cent-k8master" do |km|
-	   km.vm.provision "shell",inline: "CENTOS 8: echo creating k8master on #{MASTER_IP}"
+	   km.vm.provision "shell",inline: "echo CENTOS 8: creating k8master on #{MASTER_IP}"
        km.vm.provision "shell",inline: "echo Home dir #{ENV['HOME']}"
 	   km.vm.hostname = "cent-k8master"
 	   km.vm.provider "virtualbox" do |vb|
-           vb.name = "cent-k8master"
-		   vb.gui = false
-		   vb.memory = 2048
-		   vb.cpus = 2
+            vb.name = "cent-k8master"
+		        vb.gui = false
+		        vb.memory = 2048
+		        vb.cpus = 2
 	   end
-        km.vm.network :private_network, ip: MASTER_IP, hostname: true
-        #km.vm.network :public_network, ip: "192.168.58.115", bridge: "eth0", hostname: true
-        #km.vm.network :forwarded_port, guest: 22, host: 2225       
-	      km.vm.provision "setup_docker",:type=>"shell", :path=>"./setup_docker.sh"
-	      #km.vm.provision "setup_k8s_nodes",type:"shell", path:"./setup_k8s_nodes.sh"
-        #km.vm.provision "setup_gcloud",type:"shell", path:"./setup_gcloud.sh"
-        km.vm.provision "setup_swapoff",type:"shell", path:"./setup_k8s_swapoff.sh"    
+        km.vm.network :private_network, ip: MASTER_IP, hostname: true          
+        
+        km.vm.provision "install iproute-tc", :type=>"shell" ,inline:<<-INLINE
+            dnf install -y iproute-tc
+        INLINE
 
-        #km.vm.provision "shell", inline:<<-SHELL
-        #sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
-        #sudo touch /etc/profile.d/k8.sh
-        #sudo echo "swapoff -a" >> /etc/profile.d/k8.sh
-       
-       #SHELL
-       
-      
-       
-      #  km.vm.provision "setup_k8s_master",type:"shell", env: {"HOME" => "/home/vagrant","ID"=>"1000","GRP"=>"1000"}, path:"./setup_k8s_master.sh",:args => MASTER_IP
+	      km.vm.provision "centos_setup_docker",:type=>"shell", :path=>"./setup_docker.sh"
+	      km.vm.provision "centos_setup_k8s_nodes",type:"shell", path:"./setup_k8s_nodes.sh"
+        #km.vm.provision "centos_setup_gcloud",type:"shell", path:"./setup_gcloud.sh"
+        km.vm.provision "centos_setup_swapoff",type:"shell", path:"./setup_k8s_swapoff.sh"    
+        km.vm.provision "centos_setup_k8s_master",type:"shell", env: {"HOME" => "/home/vagrant","ID"=>"1000","GRP"=>"1000"}, path:"./setup_k8s_master.sh",:args => MASTER_IP
       
        
        
-      #  km.vm.provision "configure_k8_master",type:"shell", env: {"HOME" => "/home/vagrant","ID"=>"1000","GRP"=>"1000"}, inline:<<-INLINE 
-      #          echo "export HOME=$HOME" >> /home/vagrant/.profile
-      #          echo "export ID=$ID" >> /home/vagrant/.profile
-      #          echo "export GRP=$GRP" >> /home/vagrant/.profile
-      #          kubeadm token create --print-join-command  > /vagrant/nodes_join                                
-      #          mkdir -p $HOME/.kube
-      #          sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config                               
-      #          sudo chown $ID:$GRP $HOME/.kube/config                
-      #          echo "Configuring Calico network for nodes"
-      #          #kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
-      #          #kubectl create -f https://docs.projectcalico.org/manifests/custom-resources.yaml
-      #          #curl https://docs.projectcalico.org/manifests/calico-etcd.yaml -o calico.yaml
-      #          curl https://docs.projectcalico.org/manifests/calico.yaml -O
-      #          kubectl apply -f calico.yaml
-      #          sudo apt-get install bash-completion vim -y
-      #          echo 'alias k=kubectl' >> $HOME/.bashrc
-      #          echo "source <(kubectl completion bash)" >> $HOME/.bashrc
-      #          source .bashrc              
-      # INLINE
+        km.vm.provision "centos_configure_k8_master",type:"shell", env: {"HOME" => "/home/vagrant","ID"=>"1000","GRP"=>"1000"}, inline:<<-INLINE 
+                echo "export HOME=$HOME" >> /home/vagrant/.profile
+                echo "export ID=$ID" >> /home/vagrant/.profile
+                echo "export GRP=$GRP" >> /home/vagrant/.profile
+                kubeadm token create --print-join-command  > /vagrant/centos_nodes_join                                
+                mkdir -p $HOME/.kube
+                sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config                               
+                sudo chown $ID:$GRP $HOME/.kube/config                
+                echo "Configuring Calico network for nodes"
+                curl https://docs.projectcalico.org/manifests/calico.yaml -O
+                kubectl apply -f calico.yaml              
+                sudo yum install -y bash-completion
+                echo 'alias k=kubectl' >> $HOME/.bashrc
+                echo "source <(kubectl completion bash)" >> $HOME/.bashrc
+                source .bashrc              
+       INLINE
 
    end
 
@@ -79,47 +85,36 @@ Vagrant.configure("2") do |config|
 	   node.vm.provision "shell",inline: "echo creating vm cent-#{i}"
 	   node.vm.hostname = "cent-k#{i}"
 	   node.vm.provider "virtualbox" do |vb|
-           vb.name = "cent-k#{i}"
-		   vb.gui = false
-		   vb.memory = 2048
-		   vb.cpus = 2
+            vb.name = "cent-k#{i}"
+		        vb.gui = false
+		        vb.memory = 2048
+		        vb.cpus = 2
 	   end
        node.vm.network :private_network, ip: NETWORK+"#{STARTIP+i}", hostname: true
-       # node.vm.network :public_network,  ip: "192.168.58.#{115+i}", bridge: "eth0",hostname: true
-       #node.vm.network :forwarded_port, guest: 22, host: "#{2225+i}"
+       node.vm.provision "install iproute-tc", :type=>"shell" ,inline:<<-INLINE
+            dnf install -y iproute-tc
+        INLINE
+	      node.vm.provision "centos_setup_docker",:type=>"shell", :path=>"./setup_docker.sh"
+        node.vm.provision "centos_setup_k8s_nodes",type:"shell", :path=>"./setup_k8s_nodes.sh"
+        node.vm.provision "centos_setup_swapoff",type:"shell", path:"./setup_k8s_swapoff.sh"
+    
        
-	   #node.vm.network :public_network, bridge: "eth0"
-	      node.vm.provision "setup_docker",:type=>"shell", :path=>"./setup_docker.sh"
-        #node.vm.provision "setup_k8s_nodes",type:"shell", :path=>"./setup_k8s_nodes.sh"
-        node.vm.provision "setup_swapoff",type:"shell", path:"./setup_k8s_swapoff.sh"
-       
-
-       #node.vm.provision "shell",inline:<<-SHELL
-       #sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
-       #sudo touch /etc/profile.d/k8.sh
-       #sudo echo "swapoff -a" >> /etc/profile.d/k8.sh
-                  
-       #SHELL
-       
-       
-       #node.vm.provision "shell",env: {"HOME" => "/home/vagrant","ID"=>"1000","GRP"=>"1000"}, inline:<<-INLINE 
-       #         echo "export HOME=$HOME" >> /home/vagrant/.profile
-       #         echo "export ID=$ID" >> /home/vagrant/.profile
-       #         echo "export GRP=$GRP" >> /home/vagrant/.profile
-       #         /bin/sh -c "sudo $(cat /vagrant/nodes_join)"
-       #         sudo apt-get install bash-completion vim -y
-       #         echo 'alias k=kubectl' >> $HOME/.bashrc
-       #         echo "source <(kubectl completion bash)" >> $HOME/.bashrc
-       #         source .bashrc               
-       #INLINE
+       node.vm.provision "shell",env: {"HOME" => "/home/vagrant","ID"=>"1000","GRP"=>"1000"}, inline:<<-INLINE 
+                echo "export HOME=$HOME" >> /home/vagrant/.profile
+                echo "export ID=$ID" >> /home/vagrant/.profile
+                echo "export GRP=$GRP" >> /home/vagrant/.profile
+                /bin/sh -c "sudo $(cat /vagrant/centos_nodes_join)"
+                sudo yum install -y bash-completion
+                echo 'alias k=kubectl' >> $HOME/.bashrc
+                echo "source <(kubectl completion bash)" >> $HOME/.bashrc
+                source .bashrc               
+       INLINE
        
    end
   end
 
-  # Disable automatic box update checking. If you disable this, then
-  # boxes will only be checked for updates when the user runs
-  # `vagrant box outdated`. This is not recommended.
    config.vm.box_check_update = false
+   #config.vm.synced_folder ".", "/vagrant", type: 'virtualbox'
 
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
