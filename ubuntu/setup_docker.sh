@@ -41,6 +41,7 @@ sudo apt-get install -y docker-ce=5:19.03.15~3-0~ubuntu-bionic docker-ce-cli=5:1
 #sudo apt-get install -y docker-ce=$(DOCKER_VER) docker-ce-cli=$(DOCKER_VER) containerd.io
 
 sleep 1
+
 sudo groupadd docker
 sudo usermod -aG docker $USER
 
