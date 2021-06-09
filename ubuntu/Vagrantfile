@@ -23,41 +23,21 @@ Vagrant.configure("2") do |config|
    
   config.vm.define "k8master" do |km|
 	   km.vm.provision "shell",inline: "echo creating vm k8master on #{MASTER_IP}"
-       km.vm.provision "shell",inline: "echo Home dir #{ENV['HOME']}"
+     km.vm.provision "shell",inline: "echo Home dir #{ENV['HOME']}"
 	   km.vm.hostname = "k8master"
 	   km.vm.provider "virtualbox" do |vb|
-           vb.name = "k8master"
-		   vb.gui = false
-		   vb.memory = 2048
-		   vb.cpus = 2
+            vb.name = "k8master"
+		        vb.gui = false
+		        vb.memory = 2048
+		        vb.cpus = 2
 	   end
         km.vm.network :private_network, ip: MASTER_IP, hostname: true
-       #km.vm.network :public_network, ip: "192.168.58.115", bridge: "eth0", hostname: true
-       #km.vm.network :forwarded_port, guest: 22, host: 2225       
-	      km.vm.provision "setup_docker",:type=>"shell", :path=>"./setup_docker.sh"
+        km.vm.provision "setup_docker",:type=>"shell", :path=>"./setup_docker.sh"
 	      km.vm.provision "setup_k8s_nodes",type:"shell", path:"./setup_k8s_nodes.sh"
         #km.vm.provision "setup_gcloud",type:"shell", path:"./setup_gcloud.sh"
-        km.vm.provision "setup_swapoff",type:"shell", path:"./setup_k8s_swapoff.sh"
-        #km.vm.provision "setup_fw",type:"shell", path:"./setup_k8s_fw.sh"
+        km.vm.provision "setup_swapoff",type:"shell", path:"./setup_k8s_swapoff.sh"    
+   
 
-
-
-        #km.vm.provision "shell", inline:<<-SHELL
-        #sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
-        #sudo touch /etc/profile.d/k8.sh
-        #sudo echo "swapoff -a" >> /etc/profile.d/k8.sh       
-        #SHELL
-       
-       #km.vm.provision "setup_firewall",type:"shell", inline:<<-INLINE        
-       # #sudo echo "192.168.58.100  k8master" >> /etc/hosts
-       # sudo echo "192.168.58.101  k1.org k1.org" >> /etc/hosts
-       # sudo echo "192.168.58.102  k2.org k2.org" >> /etc/hosts  
-       # sudo ufw allow ssh
-       # sudo ufw allow proto tcp from any to any port 22,80,443,2377,7946,6443,2379:2380,10250:10252,30000:32767,3000:15000,5473
-       # sudo ufw allow proto udp from any to any port 22,80,443,7946,4789
-       # sudo echo "y" | ufw enable
-       #INLINE
-       
         km.vm.provision "setup_k8s_master",type:"shell", env: {"HOME" => "/home/vagrant","ID"=>"1000","GRP"=>"1000"}, path:"./setup_k8s_master.sh",:args => MASTER_IP
       
        
@@ -66,15 +46,11 @@ Vagrant.configure("2") do |config|
                 echo "export HOME=$HOME" >> /home/vagrant/.profile
                 echo "export ID=$ID" >> /home/vagrant/.profile
                 echo "export GRP=$GRP" >> /home/vagrant/.profile
-                #kubeadm token create --print-join-command  >> /vagrant/setup_k8s_nodes_join.sh
                 kubeadm token create --print-join-command  > /vagrant/nodes_join                                
                 mkdir -p $HOME/.kube
                 sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config                               
                 sudo chown $ID:$GRP $HOME/.kube/config                
                 echo "Configuring Calico network for nodes"
-                #kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
-                #kubectl create -f https://docs.projectcalico.org/manifests/custom-resources.yaml
-                #curl https://docs.projectcalico.org/manifests/calico-etcd.yaml -o calico.yaml
                 curl https://docs.projectcalico.org/manifests/calico.yaml -O
                 kubectl apply -f calico.yaml
                 sudo apt-get install bash-completion vim -y
@@ -90,39 +66,15 @@ Vagrant.configure("2") do |config|
 	   node.vm.provision "shell",inline: "echo creating vm #{i}"
 	   node.vm.hostname = "k#{i}"
 	   node.vm.provider "virtualbox" do |vb|
-           vb.name = "k#{i}"
-		   vb.gui = false
-		   vb.memory = 2048
-		   vb.cpus = 2
+            vb.name = "k#{i}"
+		        vb.gui = false
+		        vb.memory = 2048
+		        vb.cpus = 2
 	   end
        node.vm.network :private_network, ip: NETWORK+"#{STARTIP+i}", hostname: true
-       # node.vm.network :public_network,  ip: "192.168.58.#{115+i}", bridge: "eth0",hostname: true
-       #node.vm.network :forwarded_port, guest: 22, host: "#{2225+i}"
-       
-	   #node.vm.network :public_network, bridge: "eth0"
-	     node.vm.provision "setup_docker",:type=>"shell", :path=>"./setup_docker.sh"
+       node.vm.provision "setup_docker",:type=>"shell", :path=>"./setup_docker.sh"
        node.vm.provision "setup_k8s_nodes",type:"shell", :path=>"./setup_k8s_nodes.sh"
        node.vm.provision "setup_swapoff",type:"shell", path:"./setup_k8s_swapoff.sh"
-       #node.vm.provision "setup_fw",type:"shell", path:"./setup_k8s_fw.sh"
-       
-       #node.vm.provision "shell",inline:<<-SHELL
-       #sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
-       #sudo touch /etc/profile.d/k8.sh
-       #sudo echo "swapoff -a" >> /etc/profile.d/k8.sh
-                  
-       #SHELL
-       
-       #node.vm.provision "shell",inline:<<-INLINE        
-       # #sudo echo "192.168.58.100 k8master.org k8master.org" >> /etc/hosts
-       # sudo echo "192.168.58.101  k1.org k1.org" >> /etc/hosts
-       # sudo echo "192.168.58.102  k2.org k2.org" >> /etc/hosts  
-       # sudo ufw allow ssh
-       # sudo ufw allow proto tcp from any to any port 22,80,443,2377,7946,6443,2379:2380,10250:10252,30000:32767,3000:15000,5473
-       # sudo ufw allow proto udp from any to any port 22,80,443,7946,4789
-       # sudo echo "y" | ufw enable
-       #INLINE
-       
-       #node.vm.provision "setup_join_nodes",type:"shell", :path=>"./setup_k8s_nodes_join.sh"
        
        node.vm.provision "shell",env: {"HOME" => "/home/vagrant","ID"=>"1000","GRP"=>"1000"}, inline:<<-INLINE 
                 echo "export HOME=$HOME" >> /home/vagrant/.profile
@@ -138,9 +90,7 @@ Vagrant.configure("2") do |config|
    end
   end
 
-  # Disable automatic box update checking. If you disable this, then
-  # boxes will only be checked for updates when the user runs
-  # `vagrant box outdated`. This is not recommended.
+
    config.vm.box_check_update = false
 
   # Create a forwarded port mapping which allows access to a specific port
