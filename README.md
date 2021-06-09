@@ -225,4 +225,3 @@ $ git checkout ubuntu
 ### For Centos [Work in Progress]
 
 Similar steps, but please do wait up for a while for centos.
->>>>>>> e792386f3a79e300550776de57cda0bdf5237d60
