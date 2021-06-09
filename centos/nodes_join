@@ -1,0 +1,1 @@
+kubeadm join 192.168.58.100:6443 --token e2lt98.atnw777vj1ukm0e9 --discovery-token-ca-cert-hash sha256:8920cc73859f8f77c34831e5202fa322a5c5c9505ae4bd589ca15db20645e22a 
