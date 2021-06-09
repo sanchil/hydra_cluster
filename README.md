@@ -9,7 +9,7 @@ By default the cluster boots up with following three nodes.
 - worker node: k2
 
 
-## A Quick install and check
+## A quick install and check
 
 Follow these commands for a quick download, install and run the cluster.
 
