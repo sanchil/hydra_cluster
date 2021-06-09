@@ -1,6 +1,5 @@
 # hydra_cluster
 
-<<<<<<< HEAD
 A k8s local cluster for laptops and desktops for Ubuntu image.
 
 By default the cluster boots up with following three nodes. 
