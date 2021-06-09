@@ -20,9 +20,33 @@ Vagrant.configure("2") do |config|
   # boxes at https://vagrantcloud.com/search.
 
   config.vm.box = "ubuntu/bionic64"
-   
+
+
+# The block for updating the guest addtions for ubuntu. 
+# This is usually not needed and therefore is commented out.
+# If for any reason you need updated virtualbox guest additions
+# then uncomment the block below and run the usual vagrant commands 
+#
+
+#  config.vm.provision "install guest additions ", :type=>"shell" ,inline:<<-INLINE
+#        curl https://download.virtualbox.org/virtualbox/6.0.0/VBoxGuestAdditions_6.0.0.iso -O
+#        sudo mkdir -p /mnt/cdrom
+#        sudo mount -o loop VBoxGuestAdditions_6.0.0.iso /mnt/cdrom  
+#        sudo apt-get update -y
+#        sudo apt-get install -y build-essential gcc make perl dkms  
+#        echo "y" | sudo /mnt/cdrom/./VBoxLinuxAdditions.run --nox11
+#        sudo usermod -aG vboxsf $USER  
+#        INLINE
+  
+
+################################################################################
+### Configure and create the k8master ##########################################
+
+################################################################################
+
+
   config.vm.define "k8master" do |km|
-	   km.vm.provision "shell",inline: "echo Ubuntu Bionic :creating vm k8master on #{MASTER_IP}"
+	   km.vm.provision "shell",inline: "echo Ubuntu Bionic: creating vm k8master on #{MASTER_IP}"
      km.vm.provision "shell",inline: "echo Home dir #{ENV['HOME']}"
 	   km.vm.hostname = "k8master"
 	   km.vm.provider "virtualbox" do |vb|
@@ -60,6 +84,12 @@ Vagrant.configure("2") do |config|
        INLINE
 
    end
+
+################################################################################
+### Configure and create the worker nodes k1 and k2 ############################
+
+################################################################################
+
 
   (1..NUMBER_NODES).each do |i|
    config.vm.define "k#{i}" do |node|
