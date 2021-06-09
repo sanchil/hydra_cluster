@@ -4,7 +4,7 @@ A k8s local cluster for laptops and desktops. This k8s cluster may be run locall
 It makes use of Calico for implementation of the default CNI plugin for Kubernetes pods. Depending upon needs it may also be used
 to connect to GKE instances running on google cloud.
 
-## Why a local k8s cluster
+## Why run a local k8s cluster ?
 
 Having kubernetes cluster running locally is a great option as a learning tool. It introduces the user to cluster setup and 
 running issues and ways to troubleshoot them and fine tune cluster performance. A minor inconvenience for a great learning experience. 
