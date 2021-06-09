@@ -22,7 +22,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/bionic64"
    
   config.vm.define "k8master" do |km|
-	   km.vm.provision "shell",inline: "echo creating vm k8master on #{MASTER_IP}"
+	   km.vm.provision "shell",inline: "echo Ubuntu Bionic :creating vm k8master on #{MASTER_IP}"
      km.vm.provision "shell",inline: "echo Home dir #{ENV['HOME']}"
 	   km.vm.hostname = "k8master"
 	   km.vm.provider "virtualbox" do |vb|
