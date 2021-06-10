@@ -41,7 +41,8 @@ $ cd hydra_cluster
 $ git checkout ubuntu
 ```
 More information on this page 
-[hydra_cluster/ubuntu/README.md]
+
+[a relative link](hydra_cluster/ubuntu/README.md)
 
 ### For Centos [Work in Progress]
 
