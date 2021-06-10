@@ -37,10 +37,10 @@ Vagrant.configure("2") do |config|
   
 
   config.vm.define "cent-k8master" do |km|
-	   km.vm.provision "shell",inline: "echo CENTOS 8: creating k8master on #{MASTER_IP}"
-       km.vm.provision "shell",inline: "echo Home dir #{ENV['HOME']}"
-	   km.vm.hostname = "cent-k8master"
-	   km.vm.provider "virtualbox" do |vb|
+	km.vm.provision "shell",inline: "echo CENTOS 8: creating k8master on #{MASTER_IP}"
+       	km.vm.provision "shell",inline: "echo Home dir #{ENV['HOME']}"
+	km.vm.hostname = "cent-k8master"
+	km.vm.provider "virtualbox" do |vb|
             vb.name = "cent-k8master"
 		        vb.gui = false
 		        vb.memory = 2048
@@ -52,8 +52,8 @@ Vagrant.configure("2") do |config|
             dnf install -y iproute-tc
         INLINE
 
-	      km.vm.provision "centos_setup_docker",:type=>"shell", :path=>"./setup_docker.sh"
-	      km.vm.provision "centos_setup_k8s_nodes",type:"shell", path:"./setup_k8s_nodes.sh"
+	km.vm.provision "centos_setup_docker",:type=>"shell", :path=>"./setup_docker.sh"
+	km.vm.provision "centos_setup_k8s_nodes",type:"shell", path:"./setup_k8s_nodes.sh"
         #km.vm.provision "centos_setup_gcloud",type:"shell", path:"./setup_gcloud.sh"
         km.vm.provision "centos_setup_swapoff",type:"shell", path:"./setup_k8s_swapoff.sh"    
         km.vm.provision "centos_setup_k8s_master",type:"shell", env: {"HOME" => "/home/vagrant","ID"=>"1000","GRP"=>"1000"}, path:"./setup_k8s_master.sh",:args => MASTER_IP
@@ -102,7 +102,7 @@ Vagrant.configure("2") do |config|
                 echo "export HOME=$HOME" >> /home/vagrant/.profile
                 echo "export ID=$ID" >> /home/vagrant/.profile
                 echo "export GRP=$GRP" >> /home/vagrant/.profile
-                /bin/sh -c "sudo $(cat /vagrant/centos_nodes_join)"
+                #/bin/sh -c "sudo $(cat /vagrant/centos_nodes_join)"
                 sudo yum install -y bash-completion
                 echo 'alias k=kubectl' >> $HOME/.bashrc
                 echo "source <(kubectl completion bash)" >> $HOME/.bashrc
