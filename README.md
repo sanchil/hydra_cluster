@@ -42,19 +42,21 @@ $ git checkout ubuntu
 ```
 More information on this page 
 
-[a relative link](hydra_cluster/ubuntu/README.md)
+[More information for Ubuntu](hydra_cluster/blob/ubuntu/README.md)
 
-### For Centos [Work in Progress]
+### For Centos 
 
 OS image: centos/8
 master node: cent-k8master
 worker node: cent-k1
 worker node: cent-k2
 
-Some additional effort is needed to join worker nodes to master node in centos.
+The worker nodes need to be joined master node by running the join link command copied to /vagrant/centos
 
 ```sh
 $ git clone https://github.com/sanchil/hydra_cluster.git
 $ cd hydra_cluster
 $ git checkout centos
 ```
+
+[More information for Ubuntu](hydra_cluster/blob/centos/README.md)
