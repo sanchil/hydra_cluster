@@ -1,6 +1,6 @@
 # hydra_cluster (ubuntu/bionic)
 
-A k8s local cluster for laptops and desktops for Ubuntu image.
+A k8s local cluster build for laptops and desktops for Ubuntu image.
 
 By default the cluster boots up with following three nodes. 
 
