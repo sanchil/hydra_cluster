@@ -40,7 +40,8 @@ $ git clone https://github.com/sanchil/hydra_cluster.git
 $ cd hydra_cluster
 $ git checkout ubuntu
 ```
-
+More information on this page 
+[hydra_cluster/ubuntu/README.md]
 
 ### For Centos [Work in Progress]
 
