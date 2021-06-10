@@ -11,7 +11,7 @@ running issues and ways to troubleshoot them and fine tune cluster performance. 
 In addition it also introduces transparency into the cluster setup process.
 
 All the standard scripts for building docker and kubernetes have been collected bound together under the automation umbrella of vagrant via Vagranfile.
-Everything that can be configured is configurable via the scripts that vagrant executes.
+Everything that can be configured and is configurable is configured via the scripts that vagrant executes. The docker and kubernetes environment builds are standard script files. Only the VM instance creation process has been essentially automated via vagrant. It is entirely possible to carve out VM instances to the exact specifications needed for docker and kubernetes environment manually as well, if one chooses to go that route.
 
 Additionally this cluster may also be hooked up your cluster running on cloud. It is possible to manage cloud clusters as long as the 
 kubectl tool is pointed to the correct cloud config file.
