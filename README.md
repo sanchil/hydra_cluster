@@ -1,4 +1,4 @@
-# hydra_cluster
+# hydra_cluster (ubuntu/bionic)
 
 A k8s local cluster for laptops and desktops for Ubuntu image.
 
