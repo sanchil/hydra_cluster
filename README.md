@@ -42,7 +42,7 @@ $ git checkout ubuntu
 ```
 More information on this page 
 
-[More information for Ubuntu/Bionic](hydra_cluster/blob/ubuntu/README.md)
+[More information for Ubuntu/Bionic](../ubuntu/README.md)
 
 ### For Centos 
 
@@ -59,4 +59,4 @@ $ cd hydra_cluster
 $ git checkout centos
 ```
 
-[More information for Centos/8](hydra_cluster/blob/centos/README.md)
+[More information for Centos/8](../centos/README.md)
