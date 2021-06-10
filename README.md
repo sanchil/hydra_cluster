@@ -1,4 +1,4 @@
-# hydra_cluster
+# hydra_cluster (centos/8)
 
 A k8s local cluster for laptops and desktops based on Centos 8 image.
 
