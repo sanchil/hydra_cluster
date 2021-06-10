@@ -61,7 +61,7 @@ $ git checkout centos
 
 [More information for Centos/8](../centos/README.md)
 
-## Authors
+## Author
 
 * **Sandeep L Chiluveru** 
 * [ sandeepnet@aol.com ]
