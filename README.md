@@ -1,6 +1,6 @@
 # hydra_cluster (centos/8)
 
-A k8s local cluster for laptops and desktops based on Centos 8 image.
+A k8s local cluster build for laptops and desktops based on Centos 8 image.
 
 By default the cluster boots up with following three nodes. 
 
