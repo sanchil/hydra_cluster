@@ -241,7 +241,7 @@ Alternatively you may also point your browser to this ip address.
 
 ## Vagrantfile
 
-The vagrantfile is a simple and a standard straight forward file for building a VM using Virtualbox as its vm platform and ubuntu as its os image.
+The vagrantfile is a simple and a standard straight forward file for building a VM using Virtualbox as its vm platform and centos/8 as its os image.
 It runs separate scripts for docker, kubernetes and swap. All the scripts collections of standards commands and procedures for installing
 configuring of vm as per requirements of docker and kubernetes. It makes use of calico as its CNI plugin for implementing of pod networks.
 
