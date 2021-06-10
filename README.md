@@ -31,6 +31,10 @@ Vagrant [https://www.vagrantup.com/]
 
 ### For Ubuntu
 
+OS image: ubuntu/bionic
+master node: k8master
+worker node: k1
+worker node: k2
 
 ```sh
 $ git clone https://github.com/sanchil/hydra_cluster.git
@@ -41,4 +45,15 @@ $ git checkout ubuntu
 
 ### For Centos [Work in Progress]
 
-Similar steps, but please do wait up for a while for centos.
+OS image: centos/8
+master node: cent-k8master
+worker node: cent-k1
+worker node: cent-k2
+
+Some additional effort is needed to join worker nodes to master node in centos.
+
+```sh
+$ git clone https://github.com/sanchil/hydra_cluster.git
+$ cd hydra_cluster
+$ git checkout centos
+```
