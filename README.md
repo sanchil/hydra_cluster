@@ -16,7 +16,6 @@ Everything that can be configured is configurable via the scripts that vagrant e
 Additionally this cluster may also be hooked up your cluster running on cloud. It is possible to manage cloud clusters as long as the 
 kubectl tool is pointed to the correct cloud config file.
 
-Ubuntu works at the moment and support for centos will also be added soon.
 
 ## Pre Requisites
 
