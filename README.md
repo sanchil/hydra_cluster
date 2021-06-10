@@ -67,7 +67,7 @@ $ k get nodes -o wide
 
 ```
 
-Make a quick check if all the pods in namespace kube-system are in a proper running state. All the pods in this namespaces must be in a proper running state. If not, then run a vagrant destroy command and try to bring them up again. If things do not go as planned try switching to a different CNI such as weavenet and giving it a try again. 
+Make a quick check to see if all the pods in namespace kube-system are in a proper running state. All the pods in this namespaces must be in a proper running state. If not, then run a vagrant destroy command and try to bring them up again. If things do not go as planned try switching to a different CNI such as weavenet and giving it a try again. 
 
 Note: You may need to delete calico cni configurations in /etc/cni/net.d and plugins /opt/cni/bin
 
