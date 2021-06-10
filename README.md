@@ -187,7 +187,7 @@ to connect to GKE instances running on google cloud.
 
 [Back to Main](../main/README.md)
 
-## Authors
+## Author
 
 * **Sandeep L Chiluveru** 
 * [ sandeepnet@aol.com ]
