@@ -87,7 +87,9 @@ $ /vagrant/centos_nodes_join
 
 ```
 
-Following are some other ways to recover a join link for the nodes from the master node. On the master node run the following command. Usually you will not need these additional steps.
+Following are some other ways to recover a join link for the nodes from the master node. On the master node run the following command. 
+
+These additional good to know steps are for informational reasons and you will not need them for most purposes.
 
 ```sh
 
