@@ -79,7 +79,7 @@ $ k get -n kube-system get pods
 ```
 #### Copy the master node join link
 
-The join link was copied to /vagrant/centos_nodes_join file. Copy this link and save it.
+The join link was copied to /vagrant/centos_nodes_join file on the master node cent-k8master. Copy this link and save it.
 
 ```sh
 
