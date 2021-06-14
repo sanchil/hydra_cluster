@@ -223,6 +223,12 @@ k create svc nodeport nginx --tcp=80:80 --node-port=30010 --dry-run=client -o ya
 k set selector "run=nginx" --local -f - -o yaml | k create -f -
 
 ```
+check service ip address
+
+```sh
+k get svc nginx
+```
+
 
 check the node port service ip address
 
@@ -230,6 +236,13 @@ check the node port service ip address
 curl http://<svc_ip>:80
 
 ```
+
+Get node ips
+
+```sh
+k get nodes -o wide
+```
+
 
 Check for the nginx pod running on node ip and node port 30010  
 
