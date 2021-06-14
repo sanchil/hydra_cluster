@@ -143,11 +143,24 @@ k set selector "run=nginx" --local -f - -o yaml | k create -f -
 
 ```
 
+check service ip address
+
+```sh
+k get svc nginx
+```
+
+
 check the node port service ip address
 
 ```sh
 curl http://<svc_ip>:80
 
+```
+
+Get node ips
+
+```sh
+k get nodes -o wide
 ```
 
 Check for the nginx pod running on node ip and node port 30010  
