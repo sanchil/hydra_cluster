@@ -9,9 +9,7 @@ sudo yum-config-manager \
     --add-repo \
     https://download.docker.com/linux/centos/docker-ce.repo
 
-sudo yum install docker-ce docker-ce-cli containerd.io
-
-sudo yum install docker-ce docker-ce-cli containerd.io
+sudo yum install -y docker-ce docker-ce-cli containerd.io
 
 sudo systemctl start docker
 
@@ -33,8 +31,8 @@ cat <<EOF | sudo tee /etc/docker/daemon.json
 EOF
 
 #sudo systemctl enable docker
-sudo systemctl enable docker.service
-sudo systemctl enable containerd.service
+sudo systemctl enable docker
+sudo systemctl enable containerd
 
 sudo systemctl daemon-reload
 sudo systemctl restart docker
