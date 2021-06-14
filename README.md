@@ -16,9 +16,9 @@ Follow these commands for a quick download, install and run the cluster.
 
 ```sh
 
-$ git clone https://github.com/sanchil/hydra_cluster.git
-$ cd hydra_cluster
-$ git checkout centos
+git clone https://github.com/sanchil/hydra_cluster.git
+cd hydra_cluster
+git checkout centos
 
 ```
 
@@ -32,22 +32,22 @@ Note: The same command is used for boot up the cluster for the first time and ea
 
 
 ```sh
-$ cd centos
-$ vagrant up
+cd centos
+vagrant up
 ```
 
 
 #### To halt the cluster
 
 ```sh
-$ vagrant halt
+vagrant halt
 ```
 
 
 #### To destroy the cluster
 
 ```sh
-$ vagrant destroy
+vagrant destroy
 ```
 
 #### To login to the main control plane, k8master
@@ -55,7 +55,7 @@ $ vagrant destroy
 
 ```sh
 
-$ vagrant ssh cent-k8master
+vagrant ssh cent-k8master
 
 ```
 The kubectl command is aliased to k. So you may use either k or kubectl to run your kubectl commands.
@@ -64,7 +64,7 @@ Run a get nodes command to ensure that all the three nodes, cent-k8master, cent-
 
 ```sh
 
-$ k get nodes -o wide
+kubectl get nodes -o wide
 
 ```
 
@@ -74,7 +74,7 @@ Note: You may need to delete calico cni configurations in /etc/cni/net.d and plu
 
 ```sh
 
-$ k get -n kube-system get pods
+kubectl get -n kube-system get pods
 
 ```
 #### Copy the master node join link
@@ -83,7 +83,7 @@ The join link was copied to /vagrant/centos_nodes_join file on the master node c
 
 ```sh
 
-$ /vagrant/centos_nodes_join
+/vagrant/centos_nodes_join
 
 ```
 
@@ -93,7 +93,7 @@ These additional good to know steps are for informational reasons and you will n
 
 ```sh
 
-$ kubeadm token create --print-join-command
+kubeadm token create --print-join-command
 
 ```
 or
@@ -103,7 +103,7 @@ step-1:
 
 ```sh
 
-$ openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt \
+openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt \
     | openssl rsa -pubin -outform der 2>/dev/null \
     | openssl dgst -sha256 -hex \
     | sed 's/^.* //'
@@ -115,7 +115,7 @@ $ openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt \
 step-2: 
 
 ```sh
-$ kubeadm token list  | awk '{print $1}' | tail -n1
+kubeadm token list  | awk '{print $1}' | tail -n1
 ```
 
 step-3: 
@@ -125,7 +125,7 @@ Form a join link and run this on worker nodes only
 
 ```sh
 
-$ kubeadm join <ip-address>:6443\
+kubeadm join <ip-address>:6443\
     --token=<token-from-step-2> \
     --discovery-token-ca-cert-hash sha256:<ca-hash-from-step-1>
   
@@ -138,7 +138,7 @@ $ kubeadm join <ip-address>:6443\
 
 ```sh
 
-$ vagrant ssh cent-k1
+vagrant ssh cent-k1
 
 ```
 
@@ -146,7 +146,7 @@ Join this node by running the join link command found in the /vagrant/centos_nod
 
 ```sh
 
-$ sudo kubeadm join <ip-address>:6443\
+sudo kubeadm join <ip-address>:6443\
     --token=<token-from-step-2> \
     --discovery-token-ca-cert-hash sha256:<ca-hash-from-step-1>
 
@@ -158,7 +158,7 @@ $ sudo kubeadm join <ip-address>:6443\
 
 ```sh
 
-$ vagrant ssh cent-k2
+vagrant ssh cent-k2
 
 ```
 Join this node by running the join link command as sudo using the same process as used to join node cent-k1
@@ -166,7 +166,7 @@ Join this node by running the join link command as sudo using the same process a
 
 ```sh
 
-$ sudo kubeadm join <ip-address>:6443\
+sudo kubeadm join <ip-address>:6443\
     --token=<token-from-step-2> \
     --discovery-token-ca-cert-hash sha256:<ca-hash-from-step-1>
 
@@ -183,7 +183,7 @@ Run nginx image to ensure that the nodes are able to handle the pods.
 
 ```sh
 
-$ k run nginx --image nginx --port 80
+kubectl run nginx --image nginx --port 80
 
 ```
 
@@ -192,7 +192,7 @@ Run kubectl command to check if the pod is running
 
 ```sh
 
-$ k get po nginx -o wide
+kubectl get po nginx -o wide
 
 ```
 Note the ip address of the pod
@@ -206,7 +206,7 @@ Run describe command on nginx pod to check the details of the pod.
 
 ```sh
 
-$ k describe po nginx
+kubectl describe po nginx
 
 ```
 curl to the ip address and port
@@ -219,14 +219,14 @@ Create a nodeport service
 
 ```sh
 
-k create svc nodeport nginx --tcp=80:80 --node-port=30010 --dry-run=client -o yaml | \
-k set selector "run=nginx" --local -f - -o yaml | k create -f -
+kubectl create svc nodeport nginx --tcp=80:80 --node-port=30010 --dry-run=client -o yaml | \
+kubectl set selector "run=nginx" --local -f - -o yaml | kubectl create -f -
 
 ```
 check service ip address
 
 ```sh
-k get svc nginx
+kubectl get svc nginx
 ```
 
 
@@ -240,7 +240,7 @@ curl http://<svc_ip>:80
 Get node ips
 
 ```sh
-k get nodes -o wide
+kubectl get nodes -o wide
 ```
 
 
