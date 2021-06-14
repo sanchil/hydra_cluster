@@ -63,7 +63,7 @@ Run a get nodes command to ensure that all the three nodes, k8master, k1 and k2 
 
 ```sh
 
-$ k get nodes -o wide
+$ kubectl get nodes -o wide
 
 ```
 
@@ -73,7 +73,7 @@ Note: You may need to delete calico cni configurations in /etc/cni/net.d and plu
 
 ```sh
 
-$ k get -n kube-system get pods
+$ kubectl get -n kube-system get pods
 
 ```
 #### To login to k1 worker node
@@ -102,7 +102,7 @@ Run nginx image to ensure that the nodes are able to handle the pods.
 
 ```sh
 
-$ k run nginx --image nginx --port 80
+$ kubectl run nginx --image nginx --port 80
 
 ```
 
@@ -111,7 +111,7 @@ Run kubectl command to check if the pod is running
 
 ```sh
 
-$ k get po nginx -o wide
+$ kubectl get po nginx -o wide
 
 ```
 Note the ip address of the pod
@@ -125,7 +125,7 @@ Run describe command on nginx pod to check the details of the pod.
 
 ```sh
 
-$ k describe po nginx
+$ kubectl describe po nginx
 
 ```
 curl to the ip address and port
@@ -138,15 +138,15 @@ Create a nodeport service
 
 ```sh
 
-k create svc nodeport nginx --tcp=80:80 --node-port=30010 --dry-run=client -o yaml | \
-k set selector "run=nginx" --local -f - -o yaml | k create -f -
+kubectl create svc nodeport nginx --tcp=80:80 --node-port=30010 --dry-run=client -o yaml | \
+kubectl set selector "run=nginx" --local -f - -o yaml | kubectl create -f -
 
 ```
 
 check service ip address
 
 ```sh
-k get svc nginx
+kubectl get svc nginx
 ```
 
 
@@ -160,7 +160,7 @@ curl http://<svc_ip>:80
 Get node ips
 
 ```sh
-k get nodes -o wide
+kubectl get nodes -o wide
 ```
 
 Check for the nginx pod running on node ip and node port 30010  
