@@ -72,7 +72,7 @@ Note: You may need to delete calico cni configurations in /etc/cni/net.d and plu
 
 ```sh
 
-kubectl get -n kube-system get pods
+kubectl -n kube-system get pods
 
 ```
 #### To login to k1 worker node
