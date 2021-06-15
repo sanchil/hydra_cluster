@@ -125,7 +125,7 @@ Form a join link and run this on worker nodes only
 
 ```sh
 
-kubeadm join <ip-address>:6443\
+sudo kubeadm join <ip-address>:6443\
     --token=<token-from-step-2> \
     --discovery-token-ca-cert-hash sha256:<ca-hash-from-step-1>
   
